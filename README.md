@@ -69,3 +69,8 @@ npm run db:seed
 ```bash
 npm run verify:prisma
 ```
+
+
+## Prisma datasource note
+- `prisma/schema.prisma` uses fixed `provider = "postgresql"` for Railway compatibility.
+- Switch to SQLite only by editing schema provider locally before `db:push`.
