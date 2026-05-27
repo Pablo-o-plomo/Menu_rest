@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "npm run verify:prisma && prisma generate && next build",
     "start": "next start",
-    "postinstall": "prisma generate",
+    "postinstall": "npm run verify:prisma && prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:deploy": "prisma db push",
-    "start:railway": "npm run db:deploy && npm run start"
+    "start:railway": "npm run db:deploy && npm run start",
+    "verify:prisma": "prisma validate"
   },
   "dependencies": {
     "@prisma/client": "^5.16.2",
