@@ -8,7 +8,9 @@
     "start": "next start",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:deploy": "prisma db push",
+    "start:railway": "npm run db:deploy && npm run start"
   },
   "dependencies": {
     "@prisma/client": "^5.16.2",

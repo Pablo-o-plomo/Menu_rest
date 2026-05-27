@@ -1,5 +1,8 @@
 # Menu Control System
-Установка:
+
+Веб-система контроля меню ресторанов на **Next.js + TypeScript + Prisma**.
+
+## Локальный запуск
 ```bash
 npm install
 cp .env.example .env
@@ -8,5 +11,48 @@ npm run db:seed
 npm run build
 npm run start
 ```
-Стек: Next.js + TypeScript + Prisma + SQLite/PostgreSQL.
-Timeweb: Node 18+, build `npm run build`, start `npm run start`.
+
+## Railway (рекомендуется PostgreSQL)
+
+### 1) Создайте проект
+- Создайте новый проект в Railway.
+- Подключите GitHub-репозиторий с этим кодом.
+- Добавьте сервис **PostgreSQL** в тот же проект.
+
+### 2) Переменные окружения приложения
+Укажите в Railway Variables:
+
+```env
+DATABASE_PROVIDER="postgresql"
+DATABASE_URL="${{Postgres.DATABASE_URL}}"
+SESSION_SECRET="long-random-secret"
+NODE_ENV="production"
+```
+
+> Для Railway используйте PostgreSQL. SQLite на Railway не подходит для production-сценария.
+
+### 3) Команды сборки и запуска
+Конфиг уже задан в `railway.json`:
+- Build: `npm run build`
+- Start: `npm run start:railway`
+
+`start:railway` выполняет:
+1. `npm run db:deploy` (`prisma db push`)
+2. `npm run start`
+
+Это гарантирует применение схемы БД перед стартом сервера.
+
+### 4) Первый деплой
+После деплоя при необходимости заполните тестовые данные в Railway Shell:
+```bash
+npm run db:seed
+```
+
+## ENV переменные
+- `DATABASE_PROVIDER` = `sqlite` или `postgresql`
+- `DATABASE_URL`
+- `SESSION_SECRET`
+
+## Примеры файлов для импорта
+- Меню: `public/examples/menu-template.csv`
+- Продажи: `public/examples/sales-template.csv`
