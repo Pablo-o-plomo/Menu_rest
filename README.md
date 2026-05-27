@@ -56,3 +56,7 @@ npm run db:seed
 ## Примеры файлов для импорта
 - Меню: `public/examples/menu-template.csv`
 - Продажи: `public/examples/sales-template.csv`
+
+
+## Примечание по Railway Security Scanner
+- Используйте Next.js версии `^14.2.35` или выше, чтобы пройти security-gate Railway.
