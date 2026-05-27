@@ -74,3 +74,8 @@ npm run verify:prisma
 ## Prisma datasource note
 - `prisma/schema.prisma` uses fixed `provider = "postgresql"` for Railway compatibility.
 - Switch to SQLite only by editing schema provider locally before `db:push`.
+
+
+## Anti-crash build settings
+- Build scripts avoid `prisma validate` during install/build to prevent false deployment failures when environment variables are not injected yet.
+- Railway start command still applies schema with `npm run db:deploy` before app start.
