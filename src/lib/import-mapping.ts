@@ -1,0 +1,6 @@
+export type RawRow = Record<string, unknown>;
+const norm = (v: unknown) => String(v ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+const pick = (row: RawRow, aliases: string[]) => { for (const [k,v] of Object.entries(row)) if (aliases.some(a => norm(a)===norm(k))) return v; };
+const num = (v: unknown) => Number(String(v ?? '').replace(',', '.').replace(/[^\d.-]/g, '')) || 0;
+export const mapMenuImportRow = (row: RawRow) => ({ category: String(pick(row,['Категория','Группа']) ?? 'Без категории'), name: String(pick(row,['Название блюда','Блюдо','Номенклатура']) ?? ''), costPrice: num(pick(row,['Себестоимость','Фудкост'])), salePrice: num(pick(row,['Продажная цена','Цена','Цена продажи'])), startDate: String(pick(row,['Дата начала','Дата действия']) ?? ''), comment: String(pick(row,['Комментарий','Примечание']) ?? '')});
+export const mapSalesImportRow = (row: RawRow) => ({ name: String(pick(row,['Название блюда','Блюдо','Номенклатура']) ?? ''), quantitySold: num(pick(row,['Количество продаж','Кол-во'])), revenue: num(pick(row,['Выручка','Сумма'])), periodStart: String(pick(row,['periodStart','Начало периода']) ?? ''), periodEnd: String(pick(row,['periodEnd','Конец периода']) ?? '')});

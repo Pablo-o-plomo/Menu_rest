@@ -1,0 +1,32 @@
+{
+  "name": "menu-control-system",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run verify:prisma && prisma generate && next build",
+    "start": "next start",
+    "postinstall": "npm run verify:prisma && prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:deploy": "prisma db push",
+    "start:railway": "npm run db:deploy && npm run start",
+    "verify:prisma": "prisma validate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.16.2",
+    "bcryptjs": "^2.4.3",
+    "next": "^14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "prisma": "^5.16.2",
+    "tsx": "^4.16.2",
+    "typescript": "5.5.3"
+  }
+}
