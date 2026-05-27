@@ -1,12 +1,22 @@
-generator client { provider = "prisma-client-js" }
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = env("DATABASE_PROVIDER")
   url      = env("DATABASE_URL")
 }
 
-enum UserRole { admin restaurant_user }
-enum ChangeStatus { planned active cancelled }
+enum UserRole {
+  admin
+  restaurant_user
+}
+
+enum ChangeStatus {
+  planned
+  active
+  cancelled
+}
 
 model User {
   id           Int         @id @default(autoincrement())
@@ -51,6 +61,7 @@ model MenuItem {
   updatedAt       DateTime          @updatedAt
   priceChanges    MenuPriceChange[]
   salesData       SalesData[]
+
   @@unique([restaurantId, name])
 }
 
