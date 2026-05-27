@@ -1,71 +1,50 @@
-# Menu Control System
+# Menu Control Center MVP
 
-Веб-система контроля меню ресторанов на **Next.js + TypeScript + Prisma**.
+Production-ready MVP для сети ресторанов с PostgreSQL, Prisma миграциями и запуском через Docker Compose на Timeweb Cloud.
 
-## Локальный запуск
+## Что подготовлено
+- Dockerfile
+- docker-compose.yml
+- .env.example
+- prisma/schema.prisma
+- prisma/migrations
+- prisma/seed.ts
+
+## Локальный запуск через Docker Compose
 ```bash
-npm install
+docker compose up -d --build
+docker compose exec app npx prisma migrate deploy
+docker compose exec app npx prisma db seed
+```
+
+После этого приложение доступно на `http://localhost:3000`.
+
+## Переменные окружения
+Скопируйте `.env.example` в `.env` при локальной разработке:
+```bash
 cp .env.example .env
-npm run db:push
-npm run db:seed
-npm run build
-npm run start
 ```
 
-## Railway (рекомендуется PostgreSQL)
-
-### 1) Создайте проект
-- Создайте новый проект в Railway.
-- Подключите GitHub-репозиторий с этим кодом.
-- Добавьте сервис **PostgreSQL** в тот же проект.
-
-### 2) Переменные окружения приложения
-Укажите в Railway Variables:
-
-```env
-DATABASE_PROVIDER="postgresql"
-DATABASE_URL="${{Postgres.DATABASE_URL}}"
-SESSION_SECRET="long-random-secret"
-NODE_ENV="production"
-```
-
-> Для Railway используйте PostgreSQL. SQLite на Railway не подходит для production-сценария.
-
-### 3) Команды сборки и запуска
-Конфиг уже задан в `railway.json`:
-- Build: `npm run build`
-- Start: `npm run start:railway`
-
-`start:railway` выполняет:
-1. `npm run db:deploy` (`prisma db push`)
-2. `npm run start`
-
-Это гарантирует применение схемы БД перед стартом сервера.
-
-### 4) Первый деплой
-После деплоя при необходимости заполните тестовые данные в Railway Shell:
-```bash
-npm run db:seed
-```
-
-## ENV переменные
+Содержимое `.env.example`:
 - `DATABASE_URL`
-- `SESSION_SECRET`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
 
-## Примеры файлов для импорта
-- Меню: `public/examples/menu-template.csv`
-- Продажи: `public/examples/sales-template.csv`
+## Timeweb Cloud
+1. Подключите репозиторий в Timeweb Cloud.
+2. Запустите сервис через Docker Compose.
+3. Убедитесь, что переменные окружения заданы как в `.env.example`.
+4. Выполните миграции и seed командами:
+```bash
+docker compose exec app npx prisma migrate deploy
+docker compose exec app npx prisma db seed
+```
 
+## Роли
+- admin
+- manager
+- viewer
 
-## Примечание по Railway Security Scanner
-- Используйте Next.js версии `^14.2.35` или выше, чтобы пройти security-gate Railway.
-
-
-## Prisma datasource note
-- `prisma/schema.prisma` uses fixed `provider = "postgresql"` for Railway compatibility.
-- Switch to SQLite only by editing schema provider locally before `db:push`.
-
-
-## Anti-crash build settings
-- Build scripts avoid `prisma validate` during install/build to prevent false deployment failures when environment variables are not injected yet.
-- Railway start command still applies schema with `npm run db:deploy` before app start.
+## Тестовые данные seed
+- Рестораны: Клёво Москва, Клёво Ростов, Клёво Сочи
+- Меню, снимки цен и плановые изменения

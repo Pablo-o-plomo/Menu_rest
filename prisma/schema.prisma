@@ -9,107 +9,152 @@ datasource db {
 
 enum UserRole {
   admin
-  restaurant_user
+  manager
+  viewer
 }
 
-enum ChangeStatus {
-  planned
+enum PlannedChangeStatus {
+  draft
+  approved
   active
   cancelled
 }
 
 model User {
-  id           Int         @id @default(autoincrement())
-  username     String      @unique
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
   passwordHash String
-  role         UserRole
-  restaurantId Int?
-  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
-  createdAt    DateTime    @default(now())
+  role      UserRole @default(viewer)
+  createdAt DateTime @default(now())
+
+  snapshots PriceSnapshot[]
+  reports   SalesReport[]
+  plans     PlannedPriceChange[]
 }
 
 model Restaurant {
-  id           Int               @id @default(autoincrement())
-  name         String            @unique
-  city         String
-  isActive     Boolean           @default(true)
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  menuItems    MenuItem[]
-  priceChanges MenuPriceChange[]
-  uploads      MenuUpload[]
-  sales        SalesData[]
-  users        User[]
+  id        String   @id @default(cuid())
+  name      String
+  city      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  menuItems      MenuItem[]
+  priceSnapshots PriceSnapshot[]
+  salesReports   SalesReport[]
+  plannedChanges PlannedPriceChange[]
 }
 
 model MenuItem {
-  id              Int               @id @default(autoincrement())
-  restaurantId    Int
-  restaurant      Restaurant        @relation(fields: [restaurantId], references: [id])
-  category        String
+  id            String @id @default(cuid())
+  restaurantId  String
+  externalCode  String?
+  article       String
+  name          String
+  groupName     String?
+  priceListName String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  snapshotItems SnapshotItem[]
+  salesItems    SalesReportItem[]
+  plannedChanges PlannedPriceChange[]
+
+  @@unique([restaurantId, article])
+}
+
+model PriceSnapshot {
+  id               String   @id @default(cuid())
+  restaurantId     String
+  snapshotDate     DateTime
+  uploadedAt       DateTime @default(now())
+  fileName         String
+  comment          String?
+  uploadedByUserId String
+
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  uploadedByUser   User @relation(fields: [uploadedByUserId], references: [id], onDelete: Restrict)
+  items            SnapshotItem[]
+
+  @@index([restaurantId, snapshotDate])
+}
+
+model SnapshotItem {
+  id              String   @id @default(cuid())
+  snapshotId      String
+  menuItemId      String
+  article         String
   name            String
-  description     String?
-  costPrice       Float
-  salePrice       Float
-  markupRub       Float
-  markupPercent   Float
-  foodCostPercent Float
-  isActive        Boolean           @default(true)
-  startDate       DateTime
-  endDate         DateTime?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  priceChanges    MenuPriceChange[]
-  salesData       SalesData[]
+  groupName       String?
+  priceListName   String?
+  salePrice       Decimal  @db.Decimal(12, 2)
+  costPrice       Decimal  @db.Decimal(12, 2)
+  markupPercent   Decimal  @db.Decimal(7, 2)
+  marginPercent   Decimal  @db.Decimal(7, 2)
+  foodCostPercent Decimal  @db.Decimal(7, 2)
+  createdAt       DateTime @default(now())
 
-  @@unique([restaurantId, name])
+  snapshot        PriceSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  menuItem        MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+
+  @@index([menuItemId])
 }
 
-model MenuPriceChange {
-  id                 Int          @id @default(autoincrement())
-  menuItemId         Int
-  menuItem           MenuItem     @relation(fields: [menuItemId], references: [id])
-  restaurantId       Int
-  restaurant         Restaurant   @relation(fields: [restaurantId], references: [id])
-  oldCostPrice       Float
-  newCostPrice       Float
-  oldSalePrice       Float
-  newSalePrice       Float
-  oldMarkupRub       Float
-  newMarkupRub       Float
-  oldFoodCostPercent Float
-  newFoodCostPercent Float
-  changeDate         DateTime
-  plannedDate        DateTime?
-  status             ChangeStatus
-  comment            String?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+model SalesReport {
+  id               String   @id @default(cuid())
+  restaurantId     String
+  startDate        DateTime
+  endDate          DateTime
+  uploadedAt       DateTime @default(now())
+  fileName         String
+  uploadedByUserId String
+
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  uploadedByUser   User @relation(fields: [uploadedByUserId], references: [id], onDelete: Restrict)
+  items            SalesReportItem[]
 }
 
-model MenuUpload {
-  id           Int        @id @default(autoincrement())
-  restaurantId Int
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  fileName     String
-  uploadDate   DateTime
-  status       String
-  importedRows Int
-  errorRows    Int
-  createdAt    DateTime   @default(now())
+model SalesReportItem {
+  id                    String   @id @default(cuid())
+  salesReportId         String
+  menuItemId            String
+  article               String
+  name                  String
+  groupName             String?
+  quantitySold          Decimal  @db.Decimal(12, 3)
+  totalRevenue          Decimal  @db.Decimal(12, 2)
+  averageSalePrice      Decimal  @db.Decimal(12, 2)
+  costPrice             Decimal  @db.Decimal(12, 2)
+  totalCost             Decimal  @db.Decimal(12, 2)
+  grossProfit           Decimal  @db.Decimal(12, 2)
+  actualFoodCostPercent Decimal  @db.Decimal(7, 2)
+  actualMarginPercent   Decimal  @db.Decimal(7, 2)
+  actualMarkupPercent   Decimal  @db.Decimal(7, 2)
+
+  report                SalesReport @relation(fields: [salesReportId], references: [id], onDelete: Cascade)
+  menuItem              MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
 }
 
-model SalesData {
-  id           Int        @id @default(autoincrement())
-  restaurantId Int
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  menuItemId   Int
-  menuItem     MenuItem   @relation(fields: [menuItemId], references: [id])
-  periodStart  DateTime
-  periodEnd    DateTime
-  quantitySold Int
-  revenue      Float
-  totalCost    Float
-  totalMarkup  Float
-  createdAt    DateTime   @default(now())
+model PlannedPriceChange {
+  id                      String @id @default(cuid())
+  restaurantId            String
+  menuItemId              String
+  currentPrice            Decimal @db.Decimal(12, 2)
+  plannedPrice            Decimal @db.Decimal(12, 2)
+  currentCostPrice        Decimal @db.Decimal(12, 2)
+  currentFoodCostPercent  Decimal @db.Decimal(7, 2)
+  projectedFoodCostPercent Decimal @db.Decimal(7, 2)
+  currentMarginPercent    Decimal @db.Decimal(7, 2)
+  projectedMarginPercent  Decimal @db.Decimal(7, 2)
+  plannedStartDate        DateTime
+  reason                  String
+  status                  PlannedChangeStatus @default(draft)
+  createdByUserId         String
+  createdAt               DateTime @default(now())
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+  createdByUser User @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
 }
