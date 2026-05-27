@@ -1,2 +1,12 @@
 import { prisma } from '@/lib/prisma';
-export default async function Analytics(){const sales=await prisma.salesData.findMany({include:{menuItem:true,restaurant:true}});const byMargin=[...sales].sort((a,b)=>b.totalMarkup-a.totalMarkup).slice(0,10);const byRevenue=[...sales].sort((a,b)=>b.revenue-a.revenue).slice(0,10);const high30=await prisma.menuItem.findMany({where:{foodCostPercent:{gt:30}},include:{restaurant:true}});const high35=await prisma.menuItem.findMany({where:{foodCostPercent:{gt:35}},include:{restaurant:true}});return <div><h1>Аналитика</h1><div className='card'><h3>Топ по марже</h3>{byMargin.map(s=><div key={s.id}>{s.restaurant.name}/{s.menuItem.name}: {s.totalMarkup.toFixed(2)}</div>)}</div><div className='card'><h3>Топ по выручке</h3>{byRevenue.map(s=><div key={s.id}>{s.restaurant.name}/{s.menuItem.name}: {s.revenue.toFixed(2)}</div>)}</div><div className='card'><h3>Food cost &gt;30%</h3>{high30.map(i=><div key={i.id}>{i.restaurant.name}/{i.name}: {i.foodCostPercent.toFixed(2)}%</div>)}</div><div className='card'><h3>Food cost &gt;35%</h3>{high35.map(i=><div key={i.id}>{i.restaurant.name}/{i.name}: {i.foodCostPercent.toFixed(2)}%</div>)}</div></div>}
+export const dynamic='force-dynamic';
+
+export default async function Analytics(){
+  const sales=await prisma.salesReportItem.findMany({include:{menuItem:{include:{restaurant:true}}}});
+  const revenue=sales.reduce((a,b)=>a+Number(b.totalRevenue),0);
+  const cost=sales.reduce((a,b)=>a+Number(b.totalCost),0);
+  const profit=revenue-cost;
+  const top=[...sales].sort((a,b)=>Number(b.grossProfit)-Number(a.grossProfit)).slice(0,10);
+  const highFood=sales.filter(x=>Number(x.actualFoodCostPercent)>30);
+  return <div><h1>Аналитика</h1><div className='grid grid-4'><div className='card'><div>Выручка</div><h3>{revenue.toFixed(2)}</h3></div><div className='card'><div>Себестоимость</div><h3>{cost.toFixed(2)}</h3></div><div className='card'><div>Валовая прибыль</div><h3>{profit.toFixed(2)}</h3></div><div className='card'><div>Food cost %</div><h3>{revenue?((cost/revenue)*100).toFixed(2):'0'}%</h3></div></div><div className='card'><h3>Топ блюд по прибыли</h3><table className='table'><thead><tr><th>Ресторан</th><th>Блюдо</th><th>Прибыль</th></tr></thead><tbody>{top.map(x=><tr key={x.id}><td>{x.menuItem.restaurant.name}</td><td>{x.name}</td><td>{Number(x.grossProfit).toFixed(2)}</td></tr>)}</tbody></table></div><div className='card'><h3>Высокий food cost</h3>{highFood.length===0?'Нет проблем':highFood.map(x=><div key={x.id}>{x.name} — {Number(x.actualFoodCostPercent).toFixed(1)}%</div>)}</div></div>
+}

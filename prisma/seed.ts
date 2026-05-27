@@ -10,7 +10,7 @@ const calc = (cost: number, sale: number) => ({
 
 async function main() {
   const pass = await bcrypt.hash('admin123', 10);
-  const admin = await prisma.user.upsert({ where: { email: 'admin@klevo.local' }, update: {}, create: { name: 'Admin', email: 'admin@klevo.local', passwordHash: pass, role: UserRole.admin } });
+  const admin = await prisma.user.upsert({ where: { email: 'admin@klevo.local' }, update: {}, create: { id: 'cm_admin', name: 'Admin', email: 'admin@klevo.local', passwordHash: pass, role: UserRole.admin } });
 
   const names = ['Клёво Москва', 'Клёво Ростов', 'Клёво Сочи'];
   for (const name of names) {

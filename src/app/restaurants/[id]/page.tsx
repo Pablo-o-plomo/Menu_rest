@@ -1,2 +1,9 @@
 import { prisma } from '@/lib/prisma';
-export default async function RestaurantPage({ params }: { params: { id: string } }) {const id=Number(params.id);const r=await prisma.restaurant.findUnique({where:{id}});const items=await prisma.menuItem.findMany({where:{restaurantId:id},orderBy:{category:'asc'}});return <div><h1>{r?.name}</h1><table><thead><tr><th>Категория</th><th>Название</th><th>Себест.</th><th>Цена</th><th>Наценка ₽</th><th>Наценка %</th><th>Food cost</th><th>Статус</th><th>Дата старта</th></tr></thead><tbody>{items.map(i=><tr key={i.id}><td>{i.category}</td><td>{i.name}</td><td>{i.costPrice}</td><td>{i.salePrice}</td><td>{i.markupRub.toFixed(2)}</td><td>{i.markupPercent.toFixed(2)}%</td><td>{i.foodCostPercent.toFixed(2)}%</td><td>{i.isActive?'в продаже':'снято'}</td><td>{i.startDate.toISOString().slice(0,10)}</td></tr>)}</tbody></table></div>}
+export const dynamic='force-dynamic';
+
+export default async function RestaurantPage({params}:{params:{id:string}}){
+  const snaps=await prisma.priceSnapshot.findMany({where:{restaurantId:params.id},orderBy:{snapshotDate:'desc'},include:{items:true,restaurant:true}});
+  const latest=snaps[0];
+  if(!latest)return <div className='card'>Нет снимков по ресторану</div>;
+  return <div><h1>{latest.restaurant.name}</h1><div className='card'>Дата снимка: {latest.snapshotDate.toISOString().slice(0,10)}</div><table className='table'><thead><tr><th>Артикул</th><th>Название</th><th>Группа</th><th>Цена</th><th>Себест.</th><th>Food cost</th><th>Маржа</th><th>Наценка</th></tr></thead><tbody>{latest.items.map(i=><tr key={i.id}><td>{i.article}</td><td>{i.name}</td><td>{i.groupName}</td><td>{Number(i.salePrice).toFixed(2)}</td><td>{Number(i.costPrice).toFixed(2)}</td><td>{Number(i.foodCostPercent).toFixed(2)}%</td><td>{Number(i.marginPercent).toFixed(2)}%</td><td>{Number(i.markupPercent).toFixed(2)}%</td></tr>)}</tbody></table></div>
+}

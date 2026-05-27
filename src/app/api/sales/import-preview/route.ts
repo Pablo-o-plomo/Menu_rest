@@ -1,2 +1,2 @@
-import { NextResponse } from 'next/server';import { parseUpload } from '@/lib/parse';import { mapSalesImportRow } from '@/lib/import-mapping';
-export async function POST(req: Request){const fd=await req.formData();const file=fd.get('file') as File;const restaurantId=Number(fd.get('restaurantId'));const rows=(await parseUpload(file)).map(mapSalesImportRow);return NextResponse.json({restaurantId,rows,invalidRows:rows.filter(r=>!r.name||r.quantitySold<=0).length});}
+import { NextResponse } from 'next/server';import { parseUpload } from '@/lib/parse';import { mapSale } from '@/lib/import-mapping';
+export async function POST(req:Request){const fd=await req.formData();const file=fd.get('file') as File;const restaurantId=String(fd.get('restaurantId')||'');const rows=(await parseUpload(file)).map(mapSale);return NextResponse.json({restaurantId,fileName:file.name,rows});}

@@ -1,2 +1,15 @@
 import { prisma } from '@/lib/prisma';
-export default async function Page(){const items=await prisma.menuItem.findMany({where:{isActive:true},include:{restaurant:true},orderBy:{foodCostPercent:'desc'}});const changes=await prisma.menuPriceChange.findMany({orderBy:{changeDate:'desc'},take:10,include:{menuItem:true,restaurant:true}});const planned=await prisma.menuPriceChange.findMany({where:{status:'planned'},orderBy:{plannedDate:'asc'},take:10,include:{menuItem:true,restaurant:true}});const avgFood=items.reduce((a,b)=>a+b.foodCostPercent,0)/(items.length||1);const avgMarkup=items.reduce((a,b)=>a+b.markupPercent,0)/(items.length||1);return <div><h1>Дашборд</h1><div className='card'>Блюд в продаже: {items.length} | Средний food cost: {avgFood.toFixed(2)}% | Средняя наценка: {avgMarkup.toFixed(2)}%</div><div className='card'><h3>Высокий food cost</h3>{items.slice(0,5).map(i=><div key={i.id}>{i.restaurant.name} — {i.name}: {i.foodCostPercent.toFixed(1)}%</div>)}</div><div className='card'><h3>Недавние изменения</h3>{changes.map(c=><div key={c.id}>{c.restaurant.name}/{c.menuItem.name}: {c.oldSalePrice}→{c.newSalePrice}</div>)}</div><div className='card'><h3>Планируемые изменения</h3>{planned.map(c=><div key={c.id}>{c.restaurant.name}/{c.menuItem.name}: {c.newSalePrice} ({c.plannedDate?.toISOString().slice(0,10)})</div>)}</div></div>}
+export const dynamic='force-dynamic';
+
+export default async function Page(){
+  const restaurants=await prisma.restaurant.findMany({include:{menuItems:true,plannedChanges:true}});
+  const snapshotItems=await prisma.snapshotItem.findMany();
+  const foodBad=snapshotItems.filter(x=>Number(x.foodCostPercent)>30).length;
+  const kpi=[
+    {t:'Ресторанов',v:restaurants.length},
+    {t:'Позиции меню',v:restaurants.reduce((a,b)=>a+b.menuItems.length,0)},
+    {t:'Проблемный food cost >30%',v:foodBad},
+    {t:'Планов цен',v:restaurants.reduce((a,b)=>a+b.plannedChanges.length,0)}
+  ];
+  return <div><h1>Dashboard</h1><div className='grid grid-4'>{kpi.map((k,i)=><div className='card' key={i}><div>{k.t}</div><h2>{k.v}</h2></div>)}</div><div className='card'><h3>Сравнение ресторанов</h3><table className='table'><thead><tr><th>Ресторан</th><th>Позиций</th><th>Планов</th></tr></thead><tbody>{restaurants.map(r=><tr key={r.id}><td>{r.name}</td><td>{r.menuItems.length}</td><td>{r.plannedChanges.length}</td></tr>)}</tbody></table></div></div>
+}

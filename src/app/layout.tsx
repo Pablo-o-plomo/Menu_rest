@@ -1,7 +1,29 @@
 import './globals.css';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const restaurants = await prisma.restaurant.findMany({ where: { isActive: true } });
-  return <html><body><div className='layout'><aside className='sidebar'><h3>Menu Control</h3><p><Link href='/'>Дашборд</Link></p><p><Link href='/analytics'>Аналитика</Link></p><p><Link href='/changes'>Изменения</Link></p><p><Link href='/uploads/menu'>Импорт меню</Link></p><p><Link href='/uploads/sales'>Импорт продаж</Link></p><p><Link href='/planning'>Планирование</Link></p><hr/>{restaurants.map(r=><p key={r.id}><Link href={`/restaurants/${r.id}`}>{r.name}</Link></p>)}</aside><main className='content'>{children}</main></div></body></html>;
+  const restaurants = await prisma.restaurant.findMany({ orderBy: { name: 'asc' } });
+  return (
+    <html lang='ru'><body>
+      <div className='layout'>
+        <aside className='sidebar'>
+          <div className='brand'>Menu Control</div>
+          <nav className='nav'>
+            <Link href='/'>Dashboard</Link>
+            <Link href='/restaurants'>Рестораны</Link>
+            <Link href='/analytics'>Аналитика</Link>
+            <Link href='/uploads/menu'>Импорт меню</Link>
+            <Link href='/uploads/sales'>Импорт продаж</Link>
+            <Link href='/planning'>План цен</Link>
+          </nav>
+          <hr/>
+          {restaurants.map(r=><div key={r.id}><Link href={`/restaurants/${r.id}`}>{r.name}</Link></div>)}
+        </aside>
+        <main className='content'>{children}</main>
+      </div>
+    </body></html>
+  );
 }
