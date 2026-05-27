@@ -49,7 +49,6 @@ npm run db:seed
 ```
 
 ## ENV переменные
-- `DATABASE_PROVIDER` = `sqlite` или `postgresql`
 - `DATABASE_URL`
 - `SESSION_SECRET`
 
@@ -60,15 +59,6 @@ npm run db:seed
 
 ## Примечание по Railway Security Scanner
 - Используйте Next.js версии `^14.2.35` или выше, чтобы пройти security-gate Railway.
-
-
-## Troubleshooting Railway build
-- If build fails at `prisma generate` with `P1012`, check `prisma/schema.prisma`: all Prisma keywords must stay in English (`datasource`, `model`, `enum`, `String`, etc.).
-- Do not auto-translate code files in editors/browsers.
-- Run locally before deploy:
-```bash
-npm run verify:prisma
-```
 
 
 ## Prisma datasource note
