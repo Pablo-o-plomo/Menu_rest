@@ -1,6 +1,6 @@
 # Menu Control Center
 
-Основной сценарий: **ручная загрузка** цен и продаж (Excel/CSV).
+Основной сценарий: ручная загрузка **сводного прейскуранта iiko/Aiko в XLSX** и ручная загрузка продаж.
 
 ## Страницы
 - `/dashboard`
@@ -12,6 +12,21 @@
 - `/templates`
 - `/changes`
 
+## Что умеет импорт цен
+- принимает `.xlsx/.xls`
+- парсит workbook через `xlsx`
+- пропускает строки вида `Группа:`
+- определяет: `article`, `itemName`, `hallPrice`, `hallMarkupPercent`, `deliveryPrice`, `deliveryMarkupPercent`, `costPrice`
+- показывает preview-таблицу
+- при подтверждении создаёт `PriceSnapshot` и сохраняет строки по типам прайса: **Зал/Доставка**
+
+## Что умеет импорт продаж
+- принимает файл продаж
+- preview перед импортом
+- сопоставляет блюдо по названию
+- сохраняет `SalesReport`/`SalesReportItem`
+- считает `grossProfit = revenue - costPrice * quantity`
+
 ## Локальный запуск
 ```bash
 cp .env.example .env
@@ -20,10 +35,10 @@ docker compose exec app npx prisma migrate deploy
 docker compose exec app npx prisma db seed
 ```
 
-## Проверка без Docker
+## Проверка
 ```bash
-npm install
 npm run build
+docker compose up --build
 ```
 
 ## Шаблоны
