@@ -1,50 +1,34 @@
-# Menu Control Center MVP
+# Menu Control Center
 
-Production-ready MVP для сети ресторанов с PostgreSQL, Prisma миграциями и запуском через Docker Compose на Timeweb Cloud.
+Основной сценарий: **ручная загрузка** цен и продаж (Excel/CSV).
 
-## Что подготовлено
-- Dockerfile
-- docker-compose.yml
-- .env.example
-- prisma/schema.prisma
-- prisma/migrations
-- prisma/seed.ts
+## Страницы
+- `/dashboard`
+- `/restaurants`
+- `/menu-items`
+- `/uploads/prices`
+- `/uploads/sales`
+- `/price-planning`
+- `/templates`
+- `/changes`
 
-## Локальный запуск через Docker Compose
+## Локальный запуск
 ```bash
+cp .env.example .env
 docker compose up -d --build
 docker compose exec app npx prisma migrate deploy
 docker compose exec app npx prisma db seed
 ```
 
-После этого приложение доступно на `http://localhost:3000`.
-
-## Переменные окружения
-Скопируйте `.env.example` в `.env` при локальной разработке:
+## Проверка без Docker
 ```bash
-cp .env.example .env
+npm install
+npm run build
 ```
 
-Содержимое `.env.example`:
-- `DATABASE_URL`
-- `NEXTAUTH_SECRET`
-- `NEXTAUTH_URL`
+## Шаблоны
+- `price-template.csv`: `restaurantName,category,itemName,costPrice,salePrice,effectiveDate`
+- `sales-template.csv`: `restaurantName,saleDate,category,itemName,quantity,revenue`
 
 ## Timeweb Cloud
-1. Подключите репозиторий в Timeweb Cloud.
-2. Запустите сервис через Docker Compose.
-3. Убедитесь, что переменные окружения заданы как в `.env.example`.
-4. Выполните миграции и seed командами:
-```bash
-docker compose exec app npx prisma migrate deploy
-docker compose exec app npx prisma db seed
-```
-
-## Роли
-- admin
-- manager
-- viewer
-
-## Тестовые данные seed
-- Рестораны: Клёво Москва, Клёво Ростов, Клёво Сочи
-- Меню, снимки цен и плановые изменения
+Используйте Docker Compose сценарий выше; после старта обязательно выполнить migrate + seed.

@@ -1,6 +1,11 @@
-export const calcMetrics = (costPrice: number, salePrice: number) => {
+export const calcPricing = (costPrice: number, salePrice: number) => {
   const markupRub = salePrice - costPrice;
-  const markupPercent = costPrice === 0 ? 0 : (markupRub / costPrice) * 100;
   const foodCostPercent = salePrice === 0 ? 0 : (costPrice / salePrice) * 100;
-  return { markupRub, markupPercent, foodCostPercent };
+  const markupPercent = salePrice === 0 ? 0 : (markupRub / salePrice) * 100;
+  const markupMultiplier = costPrice === 0 ? 0 : salePrice / costPrice;
+  return { markupRub, foodCostPercent, markupPercent, markupMultiplier };
+};
+
+export const calcGrossProfit = (revenue: number, costPrice: number, quantity: number) => {
+  return revenue - costPrice * quantity;
 };

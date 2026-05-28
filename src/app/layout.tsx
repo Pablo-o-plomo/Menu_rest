@@ -12,7 +12,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <aside className='sidebar'>
           <div className='brand'>Menu Control</div>
           <nav className='nav'>
-            <Link href='/'>Dashboard</Link>
+            <Link href='/dashboard'>Dashboard</Link>
             <Link href='/restaurants'>Рестораны</Link>
             <Link href='/analytics'>Аналитика</Link>
             <Link href='/uploads/prices'>Загрузка цен</Link>
