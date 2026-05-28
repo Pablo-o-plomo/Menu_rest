@@ -1,0 +1,1 @@
+export default function Templates(){return <div><h1>Шаблоны</h1><div className='card'><a className='btn' href='/api/templates/prices'>Скачать шаблон цен</a> <a className='btn secondary' href='/api/templates/sales'>Скачать шаблон продаж</a></div></div>}
