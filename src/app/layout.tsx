@@ -15,9 +15,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Link href='/'>Dashboard</Link>
             <Link href='/restaurants'>Рестораны</Link>
             <Link href='/analytics'>Аналитика</Link>
-            <Link href='/uploads/menu'>Импорт меню</Link>
-            <Link href='/uploads/sales'>Импорт продаж</Link>
-            <Link href='/planning'>План цен</Link>
+            <Link href='/uploads/prices'>Загрузка цен</Link>
+            <Link href='/uploads/sales'>Загрузка продаж</Link>
+            <Link href='/price-planning'>План цен</Link>
+            <Link href='/menu-items'>Блюда</Link>
+            <Link href='/templates'>Шаблоны</Link>
           </nav>
           <hr/>
           {restaurants.map(r=><div key={r.id}><Link href={`/restaurants/${r.id}`}>{r.name}</Link></div>)}
