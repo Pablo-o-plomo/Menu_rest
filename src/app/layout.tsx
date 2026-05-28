@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const restaurants = await prisma.restaurant.findMany({ orderBy: { name: 'asc' } });
+  const restaurants = await prisma.restaurant.findMany({ where:{isActive:true}, orderBy: { name: 'asc' } });
   return (
     <html lang='ru'><body>
       <div className='layout'>
